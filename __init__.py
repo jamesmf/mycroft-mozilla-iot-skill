@@ -30,6 +30,8 @@ class MozillaIoTClient:
         Client for interacting with the Mozilla IoT API
         """
         LOG.info("init'd client")
+        if host[-1] == "/":
+            host = host[:-1]
         self.host = host
         self.headers = {
             "Authorization": "Bearer {}".format(token),
@@ -47,8 +49,10 @@ class MozillaIoTClient:
         url = self.host + endpoint
 
         response = requests.request(method, url, json=data, headers=self.headers)
-
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            print("caught: ", e)
 
         return response
 
