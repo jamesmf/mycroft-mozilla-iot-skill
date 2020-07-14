@@ -96,10 +96,10 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
     def supported_request_version(self) -> IoTRequestVersion:
         return IoTRequestVersion.V3
 
-    def can_handle(request):
+    def can_handle(self, request):
         return True, None
 
-    def run_request(request, cb):
+    def run_request(self, request, cb):
         LOG.info(str(request), request)
 
 
