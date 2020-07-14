@@ -29,15 +29,18 @@ class MozillaIoTClient:
         """
         Client for interacting with the Mozilla IoT API
         """
+        LOG.info("init'd client")
         self.host = host
         self.headers = {
             "Authorization": "Bearer {}".format(token),
             "Content-Type": "application/json",
         }
+        LOG.info("client get_things()")
         self.things = self.get_things()
         self.entity_names: List[str] = [
             thing["title"] for thing in self.things if "title" in thing
         ]
+        LOG.info("finished client init")
 
     def _request(self, method: str, endpoint: str, data: dict = None):
 
@@ -58,12 +61,16 @@ class MozillaIoTClient:
 class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
     def __init__(self):
         super().__init__(name="MozillaIoTSkill")
+        LOG.info("init'd skill")
+
         self._client: MozillaIoTClient = None
         self._entities = dict()
         self._scenes: List[str] = []
-        LOG.info("init")
+        LOG.info("init complete?")
 
     def initialize(self):
+        LOG.info("beginning initialize")
+
         self.settings.set_changed_callback(self.on_websettings_changed)
         self._setup()
         self._entities: List[str] = self._client.entity_names
