@@ -71,7 +71,7 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
     def initialize(self):
         LOG.info("beginning initialize")
 
-        self.settings_change_callback(self.on_websettings_changed)
+        self.settings_change_callback = self.on_websettings_changed
         self._setup()
         self._entities: List[str] = self._client.entity_names
         self._scenes = []
