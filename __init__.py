@@ -98,4 +98,4 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
 
 
 def create_skill():
-    return MozillaIoTSkill
+    return MozillaIoTSkill()
