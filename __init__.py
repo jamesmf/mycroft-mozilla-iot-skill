@@ -75,7 +75,7 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
         self._setup()
         self._entities: List[str] = self._client.entity_names
         self._scenes = []
-        LOG.info("ABOUT TO REGISTER")
+        LOG.info(f"Entities Registered: {self._entities}")
         self.register_entities_and_scenes()
 
     def _setup(self):
@@ -97,7 +97,8 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
         return IoTRequestVersion.V3
 
     def can_handle(self, request):
-        return True, None
+        LOG.info("Mozilla IoT was consulted")
+        return True, {}
 
     def run_request(self, request, cb):
         LOG.info(str(request), request)
