@@ -60,8 +60,8 @@ class MozillaIoTClient:
 
 class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
     def __init__(self):
-        super().__init__(name="MozillaIoTSkill")
         LOG.info("init'd skill")
+        super().__init__(name="MozillaIoTSkill")
 
         self._client: MozillaIoTClient = None
         self._entities = dict()
