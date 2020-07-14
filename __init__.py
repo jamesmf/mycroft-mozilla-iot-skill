@@ -95,3 +95,7 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
     @property
     def supported_request_version(self) -> IoTRequestVersion:
         return IoTRequestVersion.V3
+
+
+def create_skill():
+    return MozillaIoTSkill
