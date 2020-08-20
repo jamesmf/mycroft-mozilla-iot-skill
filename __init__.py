@@ -58,7 +58,9 @@ class MozillaIoTClient:
 
     def get_things(self):
         if self.host:
-            return self._request("GET", "/things/").json()
+            resp = self._request("GET", "/things/")
+            print(resp)
+            return resp.json()
         return []
 
 
