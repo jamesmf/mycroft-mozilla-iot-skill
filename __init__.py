@@ -101,6 +101,7 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
 
     def can_handle(self, request):
         LOG.info("Mozilla IoT was consulted")
+        LOG.info(request)
         return True, {}
 
     def run_request(self, request, cb):
