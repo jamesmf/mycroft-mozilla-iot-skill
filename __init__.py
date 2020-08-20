@@ -77,15 +77,16 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
 
         self.settings_change_callback = self.on_websettings_changed
         self._setup()
-        self._entities: List[str] = self._client.entity_names
-        self._scenes = []
-        LOG.info(f"Entities Registered: {self._entities}")
-        self.register_entities_and_scenes()
 
     def _setup(self):
         self._client = MozillaIoTClient(
             token=self.settings.get("token"), host=self.settings.get("host")
         )
+        print("client initialized")
+        self._entities: List[str] = self._client.entity_names
+        self._scenes = []
+        LOG.info(f"Entities Registered: {self._entities}")
+        self.register_entities_and_scenes()
 
     def on_websettings_changed(self):
         self._setup()
