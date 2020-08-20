@@ -1,6 +1,7 @@
 from collections import defaultdict
-from typing import List
+from typing import List, Dict, Union
 import requests
+import json
 
 from mycroft.skills.common_iot_skill import (
     CommonIoTSkill,
@@ -36,7 +37,7 @@ class MozillaIoTClient:
         LOG.info("client get_things()")
         self.things = self.get_things()
         self.entity_names: List[str] = [
-            thing["title"] for thing in self.things if "title" in thing
+            thing["title"].lower().strip() for thing in self.things if "title" in thing
         ]
         LOG.info("finished client init")
 
@@ -59,6 +60,13 @@ class MozillaIoTClient:
             return resp.json()
         return []
 
+    def set_value(self, entity: str, attribute: str, value: Union[str, int, float]):
+        """
+        Attempt to set a thing's property value
+        """
+        thing = [th for th in self.things if th["title"] == entity]
+        print(json.dumps(thing))
+
 
 class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
     def __init__(self):
@@ -66,9 +74,8 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
         super().__init__(name="MozillaIoTSkill")
 
         self._client: MozillaIoTClient = None
-        self._entities = dict()
+        self._entities = []
         self._scenes: List[str] = []
-        LOG.info("init complete?")
 
     def initialize(self):
         LOG.info("beginning initialize")
@@ -102,6 +109,9 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
     def can_handle(self, request):
         LOG.info("Mozilla IoT was consulted")
         LOG.info(request)
+        if request.action == Action.SET and request.entity in self._entities:
+            self.client.set_value(request.entity, request.attribute, request.value)
+
         return True, {}
 
     def run_request(self, request, cb):
