@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Optional
 import requests
 import json
 
@@ -64,12 +64,27 @@ class MozillaIoTClient:
             return resp.json()
         return []
 
-    def set_value(self, entity: str, attribute: str, value: Union[str, int, float]):
+    def get_set_value_request(
+        self, entity: str, attribute: Optional[str], value: Union[str, int, float, None]
+    ):
         """
         Attempt to set a thing's property value
         """
-        thing = [th for th in self.things if normalize(th["title"]) == entity]
-        LOG.info(json.dumps(thing))
+        things = [th for th in self.things if normalize(th["title"]) == entity]
+        if len(things) == 0:
+            return False, "", {}
+        thing = things[0]
+        LOG.info(json.dumps(thing, indent=2))
+        # assume if we have no attribute that we're talking about a 'level' (for now)
+        if attribute is None:
+            attribute = "level"
+        for prop, prop_dict in thing.get("properties", {}).items():
+            if attribute in (normalize(prop), normalize(prop_dict["title"])):
+                url = prop_dict.get("links", [{}])[0].get("href", "")
+                data = {prop: value}
+                cb = {"url": url, "data": data, "method": "PUT"}
+                return True, cb
+        return False, {}
 
 
 class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
@@ -113,13 +128,19 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
     def can_handle(self, request):
         LOG.info("Mozilla IoT was consulted")
         LOG.info(request)
+        can_handle = False
+        callback = {}
         if request.action == Action.SET and request.entity in self._entities:
-            self._client.set_value(request.entity, request.attribute, request.value)
+            can_handle, callback = self._client.get_set_value_request(
+                request.entity, request.attribute, request.value
+            )
 
-        return True, {}
+        return can_handle, callback
 
     def run_request(self, request, cb):
         LOG.info(str(request), request)
+        LOG.info(cb)
+        self._client._request(cb["method"], cb["url"], cb["data"])
 
 
 def create_skill():
