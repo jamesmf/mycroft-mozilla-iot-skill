@@ -65,7 +65,7 @@ class MozillaIoTClient:
         Attempt to set a thing's property value
         """
         thing = [th for th in self.things if th["title"] == entity]
-        print(json.dumps(thing))
+        LOG.info(json.dumps(thing))
 
 
 class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
