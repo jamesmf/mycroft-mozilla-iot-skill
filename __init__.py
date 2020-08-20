@@ -21,6 +21,10 @@ LOG = getLogger()
 _MAX_BRIGHTNESS = 254
 
 
+def normalize(name: str) -> str:
+    return name.lower().strip()
+
+
 class MozillaIoTClient:
     def __init__(self, host: str, token: str):
         """
@@ -37,7 +41,7 @@ class MozillaIoTClient:
         LOG.info("client get_things()")
         self.things = self.get_things()
         self.entity_names: List[str] = [
-            thing["title"].lower().strip() for thing in self.things if "title" in thing
+            normalize(thing["title"]) for thing in self.things if "title" in thing
         ]
         LOG.info("finished client init")
 
@@ -64,7 +68,7 @@ class MozillaIoTClient:
         """
         Attempt to set a thing's property value
         """
-        thing = [th for th in self.things if th["title"] == entity]
+        thing = [th for th in self.things if normalize(th["title"]) == entity]
         LOG.info(json.dumps(thing))
 
 
