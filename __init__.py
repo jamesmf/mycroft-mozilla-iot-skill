@@ -79,7 +79,9 @@ class MozillaIoTClient:
         if attribute is None:
             attribute = "level"
         for prop, prop_dict in thing.get("properties", {}).items():
+            LOG.info(f"considering {prop}")
             if attribute in (normalize(prop), normalize(prop_dict["title"])):
+                LOG.info(f"matched {prop}")
                 url = prop_dict.get("links", [{}])[0].get("href", "")
                 data = {prop: value}
                 cb = {"url": url, "data": data, "method": "PUT"}
