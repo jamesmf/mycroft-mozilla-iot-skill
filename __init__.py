@@ -15,11 +15,7 @@ from mycroft.skills.core import FallbackSkill
 from mycroft.util.log import getLogger
 
 LOG = getLogger()
-LOG.info("BEGUN")
 
-# from .mozilla_client import MozillaIoTClient
-
-LOG.info("MADE IT PAST LOAD")
 
 _MAX_BRIGHTNESS = 254
 
@@ -47,7 +43,7 @@ class MozillaIoTClient:
     def _request(self, method: str, endpoint: str, data: dict = None):
 
         url = self.host + endpoint
-
+        LOG.info(url)
         response = requests.request(method, url, json=data, headers=self.headers)
         try:
             response.raise_for_status()
