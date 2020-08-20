@@ -110,7 +110,7 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
         LOG.info("Mozilla IoT was consulted")
         LOG.info(request)
         if request.action == Action.SET and request.entity in self._entities:
-            self.client.set_value(request.entity, request.attribute, request.value)
+            self._client.set_value(request.entity, request.attribute, request.value)
 
         return True, {}
 
