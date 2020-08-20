@@ -136,6 +136,11 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
             can_handle, callback = self._client.get_set_value_request(
                 request.entity, request.attribute, request.value
             )
+        else:
+            LOG.info(f"mozilla-iot: cannot handle {request.action}, {request.entity}")
+            LOG.info(
+                f"mozilla-iot: cannot handle {request.action == Action.SET}, {request.entity in self._entities}"
+            )
 
         return can_handle, callback
 
