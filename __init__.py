@@ -22,7 +22,7 @@ ThingType = Dict[Any, Any]  # replace if there's a good type for a Thing respons
 
 # map to help to convert some actions to "set" requests on properties
 # value is (property_name, value)
-ACTION_TO_PROPERTY_AND_VALUE = {Action.ON: ("on", "true"), Action.OFF: ("on", "false")}
+ACTION_TO_PROPERTY_AND_VALUE = {Action.ON: ("on", True), Action.OFF: ("on", False)}
 
 # actions that are "set" type actions
 SET_ACTIONS = (Action.SET, Action.ON, Action.OFF)
