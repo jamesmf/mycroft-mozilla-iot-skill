@@ -147,7 +147,7 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
             token=self.settings.get("token"), host=self.settings.get("host")
         )
         print("client initialized")
-        self._entities: List[str] = self._client.entity_names
+        self._entities: List[str] = self._client.entity_names.keys()
         self._scenes = []
         LOG.info(f"Entities Registered: {self._entities}")
         self.register_entities_and_scenes()
