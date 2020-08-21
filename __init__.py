@@ -185,6 +185,7 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
             return False, {}
         if request.action in SET_ACTIONS:
             # 'on/off' action and the like become 'set' of a property
+            LOG.info(f"type: {type(request.action)}")
             attribute = ACTION_TO_PROPERTY.get(request.action, request.attribute)
             can_handle, callback = self._client.get_set_value_request(
                 thing, attribute, request.value
