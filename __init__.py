@@ -21,7 +21,8 @@ ThingType = Dict[Any, Any]  # replace if there's a good type for a Thing respons
 
 
 # map to help to convert some actions to "set" requests on properties
-ACTION_TO_PROPERTY = {Action.ON: "on", Action.OFF: "off"}
+# value is (property_name, value)
+ACTION_TO_PROPERTY_AND_VALUE = {Action.ON: ("on", "on"), Action.OFF: ("on", "off")}
 
 # actions that are "set" type actions
 SET_ACTIONS = (Action.SET, Action.ON, Action.OFF)
@@ -186,9 +187,12 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
         if request.action in SET_ACTIONS:
             # 'on/off' action and the like become 'set' of a property
             LOG.info(f"type: {type(request.action)}")
-            attribute = ACTION_TO_PROPERTY.get(request.action, request.attribute)
+            attribute, value = ACTION_TO_PROPERTY_AND_VALUE.get(
+                request.action, (request.attribute, request.value)
+            )
+            LOG.info(f"attribute is {str(attribute)}")
             can_handle, callback = self._client.get_set_value_request(
-                thing, attribute, request.value
+                thing, attribute, value
             )
 
         return can_handle, callback
