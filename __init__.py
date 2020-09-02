@@ -15,6 +15,7 @@ from mycroft.skills.common_iot_skill import (
 from mycroft.skills.core import FallbackSkill
 from mycroft.util.log import getLogger
 
+# copied this pattern from other IoT implementation
 LOG = getLogger()
 
 ThingType = Dict[Any, Any]  # replace if there's a good type for a Thing response
@@ -28,7 +29,7 @@ ACTION_TO_PROPERTY_AND_VALUE = {Action.ON: ("on", True), Action.OFF: ("on", Fals
 SET_ACTIONS = (Action.SET, Action.ON, Action.OFF)
 
 # synonyms
-SYNONYMS = [("light", "lamp", "lights")]
+THING_NAME_SYNONYMS = [("light", "lamp", "lights")]
 
 
 def normalize(name: str) -> str:
@@ -42,7 +43,7 @@ def get_alternate_names(name: str) -> List[str]:
     """
     sp = name.split(" ")
     out = []
-    for synset in SYNONYMS:
+    for synset in THING_NAME_SYNONYMS:
         for word in synset:
             if word in sp:
                 for replacement in [w for w in synset if w != word]:
@@ -57,7 +58,6 @@ class MozillaIoTClient:
         """
         Client for interacting with the Mozilla IoT API
         """
-        LOG.info("init'd client")
         if host[-1] == "/":
             host = host[:-1]
         self.host = host
@@ -65,7 +65,6 @@ class MozillaIoTClient:
             "Authorization": "Bearer {}".format(token),
             "Content-Type": "application/json",
         }
-        LOG.info("client get_things()")
         self.things = self.get_things()
         self.entity_names: Dict[str, ThingType] = {}
         for thing in self.things:
@@ -75,7 +74,6 @@ class MozillaIoTClient:
             alternates = get_alternate_names(name)
             for other_name in alternates:
                 self.entity_names[other_name] = thing
-        LOG.info("finished client init")
 
     def request(self, method: str, endpoint: str, data: dict = None):
 
@@ -92,7 +90,6 @@ class MozillaIoTClient:
     def get_things(self):
         if self.host:
             resp = self.request("GET", "/things/")
-            print(resp)
             return resp.json()
         return []
 
@@ -118,8 +115,10 @@ class MozillaIoTClient:
         """
 
         for prop, prop_dict in thing.get("properties", {}).items():
-            LOG.info(f"considering {prop}, comparing to {attribute}")
-            if attribute in (normalize(prop), normalize(prop_dict["title"])):
+            LOG.info(
+                f"considering {prop} and {prop_dict['title']}, comparing to {attribute}"
+            )
+            if normalize(attribute) in (normalize(prop), normalize(prop_dict["title"])):
                 LOG.info(f"matched {prop}")
                 url = prop_dict.get("links", [{}])[0].get("href", "")
                 data = {prop: value}
@@ -130,7 +129,6 @@ class MozillaIoTClient:
 
 class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
     def __init__(self):
-        LOG.info("init'd skill")
         super().__init__(name="MozillaIoTSkill")
 
         self._client: MozillaIoTClient = None
@@ -138,8 +136,6 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
         self._scenes: List[str] = []
 
     def initialize(self):
-        LOG.info("beginning initialize")
-
         self.settings_change_callback = self.on_websettings_changed
         self._setup()
 
@@ -147,7 +143,6 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
         self._client = MozillaIoTClient(
             token=self.settings.get("token"), host=self.settings.get("host")
         )
-        print("client initialized")
         self._entities: List[str] = self._client.entity_names.keys()
         self._scenes = []
         LOG.info(f"Entities Registered: {self._entities}")
@@ -176,7 +171,6 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
 
     def can_handle(self, request):
         LOG.info("Mozilla IoT was consulted")
-        LOG.info(request)
         can_handle = False
         callback = {}
         entity_name = self.resolve_nicknames(request.entity)
@@ -186,11 +180,9 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
             return False, {}
         if request.action in SET_ACTIONS:
             # 'on/off' action and the like become 'set' of a property
-            LOG.info(f"type: {type(request.action)}")
             attribute, value = ACTION_TO_PROPERTY_AND_VALUE.get(
-                request.action, (request.attribute, request.value)
+                request.action, (request.attribute.name, request.value)
             )
-            LOG.info(f"attribute is {str(attribute)}")
             can_handle, callback = self._client.get_set_value_request(
                 thing, attribute, value
             )
@@ -198,7 +190,7 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
         return can_handle, callback
 
     def run_request(self, request, cb):
-        LOG.info(str(request), request)
+        LOG.info(str(request))
         LOG.info(cb)
         self._client.request(cb["method"], cb["url"], cb["data"])
 
