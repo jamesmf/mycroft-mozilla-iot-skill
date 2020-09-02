@@ -107,7 +107,7 @@ class MozillaIoTClient:
     def get_set_value_request(
         self,
         thing: ThingType,
-        attribute: Optional[Union[Enum, str]],
+        attribute: Optional[Union[Attribute, str]],
         value: Union[str, int, float, None],
     ):
         """
