@@ -8,11 +8,5 @@ skillMetadata:
       value: ''
     - name: token
       type: password
-      label: Access Tokens (See 'developer' tab of the gateway.)
+      label: Access Token (See 'developer' tab of the gateway.)
       value: ''
-  - name: Options
-    fields:
-    - name: enable_fallback
-      type: checkbox
-      label: Enable conversation component as fallback
-      value: "true"
