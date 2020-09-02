@@ -107,12 +107,15 @@ class MozillaIoTClient:
     def get_set_value_request(
         self,
         thing: ThingType,
-        attribute: Optional[str],
+        attribute: Optional[Union[Enum, str]],
         value: Union[str, int, float, None],
     ):
         """
         Attempt to set a thing's property value
         """
+        # if we have an Attribute Enum, consider its name not its value
+        if isinstance(attribute, Attribute):
+            attribute = attribute.name
 
         for prop, prop_dict in thing.get("properties", {}).items():
             LOG.info(
@@ -181,7 +184,7 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
         if request.action in SET_ACTIONS:
             # 'on/off' action and the like become 'set' of a property
             attribute, value = ACTION_TO_PROPERTY_AND_VALUE.get(
-                request.action, (request.attribute.name, request.value)
+                request.action, (request.attribute, request.value)
             )
             can_handle, callback = self._client.get_set_value_request(
                 thing, attribute, value
