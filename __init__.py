@@ -193,8 +193,9 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
         return can_handle, callback
 
     def run_request(self, request, cb):
-        LOG.info(str(request))
-        LOG.info(cb)
+        # LOG.info(str(request))
+        # LOG.info(cb)
+        LOG.info("running mozilla-iot request")
         self._client.request(cb["method"], cb["url"], cb["data"])
 
 
