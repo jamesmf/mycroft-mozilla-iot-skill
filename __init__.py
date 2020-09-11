@@ -58,7 +58,7 @@ class MozillaIoTClient:
         """
         Client for interacting with the Mozilla IoT API
         """
-        if host[-1] == "/":
+        if isinstance(host, str) and host[-1] == "/":
             host = host[:-1]
         self.host = host
         self.headers = {
