@@ -58,7 +58,7 @@ class MozillaIoTClient:
         """
         Client for interacting with the Mozilla IoT API
         """
-        if isinstance(host, str) and host[-1] == "/":
+        if host[-1:] == "/":
             host = host[:-1]
         self.host = host
         self.headers = {
@@ -79,18 +79,28 @@ class MozillaIoTClient:
 
         url = self.host + endpoint
         LOG.info(url)
-        response = requests.request(method, url, json=data, headers=self.headers)
+        try:
+            response = requests.request(method, url, json=data, headers=self.headers)
+        except requests.exceptions.MissingSchema as e:
+            LOG.info(
+                "caught requests.exceptions.MissingSchema error in mycroft-mozilla-iot-skill: ",
+                e,
+            )
+            return None
+
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            print("caught: ", e)
+            LOG.info("caught HTTPError in mycroft-mozilla-iot-skill: ", e)
+            return None
 
         return response
 
     def get_things(self):
         if self.host:
             resp = self.request("GET", "/things/")
-            return resp.json()
+            if resp is not None:
+                return resp.json()
         return []
 
     def resolve_entity(self, entity_value: str) -> ThingType:
@@ -144,7 +154,7 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
 
     def _setup(self):
         self._client = MozillaIoTClient(
-            token=self.settings.get("token"), host=self.settings.get("host")
+            token=self.settings.get("token", ""), host=self.settings.get("host", "")
         )
         self._entities: List[str] = self._client.entity_names.keys()
         self._scenes = []
