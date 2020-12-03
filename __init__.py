@@ -110,8 +110,15 @@ class MozillaIoTClient:
         "kitchen lights" but the closest Thing is "kitchen light" return
         the kitchen light Thing
         """
-        thing = self.entity_names.get(normalize(entity_value), None)
-        LOG.info(json.dumps(thing, indent=2))
+        normalized_entity = normalize(entity_value)
+        thing = self.entity_names.get(normalized_entity, None)
+        if thing is not None:
+            LOG.info(json.dumps(thing, indent=2))
+        else:
+            entity_names = list(self.entity_names.keys())
+            LOG.info(
+                f"mozilla could not find {normalized_entity}. Available options are: {entity_names}"
+            )
         return thing
 
     def get_set_value_request(
@@ -156,7 +163,7 @@ class MozillaIoTSkill(CommonIoTSkill, FallbackSkill):
         self._client = MozillaIoTClient(
             token=self.settings.get("token", ""), host=self.settings.get("host", "")
         )
-        self._entities: List[str] = self._client.entity_names.keys()
+        self._entities: List[str] = list(self._client.entity_names.keys())
         self._scenes = []
         LOG.info(f"Entities Registered: {self._entities}")
         self.register_entities_and_scenes()
